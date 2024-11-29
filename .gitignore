@@ -6,7 +6,10 @@ build/
 !**/src/test/**/build/
 
 ### Setting ###
-**/src/main/resources/*.yaml
+**/src/main/resources/application.yaml
+**/src/main/resources/application-dev.yaml
+**/src/main/resources/application-deploy.yaml
+
 
 # Compiled class file
 *.class
