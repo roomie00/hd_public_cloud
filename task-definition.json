@@ -1,12 +1,19 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:463470956721:task-definition/hd_server:1",
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:463470956721:task-definition/hd_spring:2",
   "containerDefinitions": [
     {
-      "name": "nginx",
+      "name": "hd_server",
       "cpu": 0,
       "portMappings": [
         {
-          "name": "nginx-80-tcp",
+          "name": "nginx",
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        },
+        {
+          "name": "spring",
           "containerPort": 8080,
           "hostPort": 8080,
           "protocol": "tcp",
@@ -22,7 +29,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/hd_server",
+          "awslogs-group": "/ecs/hd_spring",
           "mode": "non-blocking",
           "awslogs-create-group": "true",
           "max-buffer-size": "25m",
@@ -34,10 +41,11 @@
       "systemControls": []
     }
   ],
-  "family": "hd_server",
+  "family": "hd_spring",
+  "taskRoleArn": "arn:aws:iam::463470956721:role/ecsTaskExecutionRole",
   "executionRoleArn": "arn:aws:iam::463470956721:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
-  "revision": 1,
+  "revision": 2,
   "volumes": [],
   "status": "ACTIVE",
   "requiresAttributes": [
@@ -52,6 +60,9 @@
     },
     {
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
     },
     {
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
@@ -71,13 +82,13 @@
   "requiresCompatibilities": [
     "FARGATE"
   ],
-  "cpu": "512",
-  "memory": "1024",
+  "cpu": "1024",
+  "memory": "2048",
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
   },
-  "registeredAt": "2024-11-29T06:36:36.822Z",
+  "registeredAt": "2024-11-29T18:17:05.177Z",
   "registeredBy": "arn:aws:iam::463470956721:root",
   "tags": []
 }
