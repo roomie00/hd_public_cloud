@@ -12,7 +12,7 @@ env:
   ECS_TASK_DEFINITION: ./task-definition.json
   ECS_SERVICE: hd_server
   ECS_CLUSTER: hd_server_cluster
-  CONTAINER_NAME: hd_server
+  CONTAINER_NAME: nginx
 
 jobs:
   build:
