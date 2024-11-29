@@ -32,10 +32,10 @@ jobs:
       - name: Make application.yaml
         env:
           PROPERTIES: ${{ secrets.DEPLOY_YAML }}
-          DIR_PATH: ./src/main/resources
+          DIR_PATH: /src/main/resources
         run: |
-          mkdir -p $DIR_PATH
-          cd $DIR_PATH
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
           touch application.yml
           echo $PROPERTIES | base64 --decode > application.yml
 
