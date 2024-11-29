@@ -37,6 +37,7 @@ jobs:
           mkdir -p $DIR_PATH
           cd $DIR_PATH
           touch application.yml
+          pwd
 #          echo $PROPERTIES | base64 --decode > application.yml
 
       - name: Setup Gradle
