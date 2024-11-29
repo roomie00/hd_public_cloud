@@ -1,0 +1,102 @@
+name: hd_server
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+permissions:
+  id-token: write
+  contents: write
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_TASK_DEFINITION: ./task-definition.json
+  ECS_SERVICE: hd_server
+  ECS_CLUSTER: hd_server_cluster
+  CONTAINER_NAME: hd_server
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # properties 파일 생성(application.yaml)
+      - name: Make application.yaml
+        env:
+          PROPERTIES: ${{ secrets.DEPLOY_YAML }}
+        run: |
+          mkdir -p ./src/test/resources && cd "$_"
+          touch ./application.yml
+          echo $PROPERTIES | base64 --decode > application.yml
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      # Build 시작
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: DockerHub Upload
+        env:
+          NAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          REPO: ${{ secrets.DOCKERHUB_REPO }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REPO .
+          docker tag $REPO:latest $NAME/$REPO:$IMAGE_TAG
+          docker push $NAME/$REPO:$IMAGE_TAG
+
+#      # AWS Role을 이용한 로그인
+#      - name: AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          role-to-assume: arn:aws:iam::463470956721:role/django-role
+#          role-session-name: sampleSessionName
+#          aws-region: ap-northeast-2
+#
+#      # ECR에 로그인
+#      - name: Login to Amazon ECR
+#        id: login-ecr
+#        uses: aws-action/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+#
+#      # 이미지를 빌드하고 ECR에 푸시
+#      - name: build and push image to Amazon ECR
+#        id: build-image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          IMAGE_TAG: ${{ github.sha }}
+#        run: |
+#          docker build -t $ECR_REGISTRY/ecs_django:$IMAGE_TAG .
+#          docker push $ECR_REGISTRY/ecs_django:$IMAGE_TAG
+#          echo "image=$ECR_REGISTRY/ecs_django:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#
+#      # 푸시된 이미지를 가지고 ECS 서비스 재시작
+#      - name: Fill in the new Image in the ECS task Definition
+#        id: task-def
+#        uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
+#        with:
+#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+#          container-name: ${{ env.CONTAINER_NAME }}
+#          image: ${{ steps.build-image.outputs.image }}
+#
+#      - name: Deploy ECS task definigion
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
+#        with:
+#          task-definition: ${{ steps.task-def.outputs.task-definition }}
+#          service: ${{ env.ECS_SERVICE }}
+#          cluster: ${{ env.ECS_CLUSTER }}
+#          wait-for-service-stability: true

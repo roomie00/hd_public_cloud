@@ -8,12 +8,6 @@ build/
 ### Setting ###
 **/src/main/resources/*.yaml
 
-
-#setting file
-**/application-local.yml
-**/application-auth.yml
-**/application-real.yml
-
 # Compiled class file
 *.class
 
