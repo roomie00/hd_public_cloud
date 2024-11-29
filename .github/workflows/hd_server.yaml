@@ -34,8 +34,8 @@ jobs:
           PROPERTIES: ${{ secrets.DEPLOY_YAML }}
           DIR_PATH: ./src/main/resources
         run: |
-          mkdir -p DIR_PATH
-          cd DIR_PATH
+          mkdir -p $DIR_PATH
+          cd $DIR_PATH
 #          touch application.yml
 #          echo $PROPERTIES | base64 --decode > application.yml
 
