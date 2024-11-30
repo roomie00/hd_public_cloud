@@ -29,6 +29,11 @@ jobs:
           distribution: 'temurin'
           java-version: '23'
 
+      - name: Install yq
+        run: |
+          wget https://github.com/mikefarah/yq/releases/download/v4.18.1/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+
       # properties 파일 생성(application.yaml)
       - name: Make application.yaml
         env:
@@ -38,7 +43,7 @@ jobs:
           mkdir -p $DIR_PATH
           cd $DIR_PATH
           touch application.yml
-          echo $PROPERTIES > application.yml
+          echo $PROPERTIES | yq eval -P - > application.yml
           cat application.yml
 #
 #
