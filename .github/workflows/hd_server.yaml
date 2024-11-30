@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir $DIR_PATH
           touch $DIR_PATH/application.yml
-          echo "${{ secrets.APPLICATION }}" > $DIR_PATH/application.yml
+          echo "${{ secrets.DEPLOY_YAML }}" > $DIR_PATH/application.yml
           cat $DIR_PATH/application.yml
 
       # properties 파일 생성(application.yaml)
