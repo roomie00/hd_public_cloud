@@ -9,6 +9,7 @@ permissions:
   contents: write
 env:
   AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: hdserver
   ECS_TASK_DEFINITION: ./task-definition.json
   ECS_SERVICE: hd_server_service
   ECS_CLUSTER: hd_server_cluster
@@ -38,16 +39,18 @@ jobs:
           cd $DIR_PATH
           touch application.yml
           echo $PROPERTIES > application.yml
+          echo "${{ secrets.DEPLOY_YAML }}" | yq eval . -
+
 
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
 
       # 빌드
-#      - name: Build and Gradle
-#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#        with:
-#          arguments: clean bootJar
-#
+      - name: Build and Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: clean bootJar
+
 #      - name: Login to DockerHub
 #        uses: docker/login-action@v1
 #        with:
@@ -70,7 +73,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::463470956721:role/hd_server_ecs_role
-          role-session-name: hd_server
+          role-session-name: sampleSessionName
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -83,9 +86,9 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/ecs_django:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/ecs_django:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/ecs_django:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -t $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Fill in the new Image in the ECS task Definition
         id: task-def
