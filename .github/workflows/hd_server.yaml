@@ -43,8 +43,10 @@ jobs:
           mkdir -p $DIR_PATH
           cd $DIR_PATH
           touch application.yml
-          echo $PROPERTIES | yq eval -P > application.yml
+          echo $PROPERTIES > application.yml
           cat application.yml
+          yq eval -P application.yml > formatted-application.yml
+          mv formatted-application.yml application.yml
 #
 #
 #      - name: Run chmod to make gradlew executable
