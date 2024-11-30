@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000") // 허용할 출처를 명시적으로 설정
+                .allowedOrigins("http://hdreactbucket.s3-website.ap-northeast-2.amazonaws.com")
                 .allowedMethods("GET", "POST")  // 허용할 HTTP method
                 .allowCredentials(true);
     }
